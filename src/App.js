@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -25,8 +25,9 @@ import { UserProvider } from './context/UserContext';
 
 function App() {
   return (
+
     <UserProvider>
-      <Router>
+      <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout />}>
@@ -40,17 +41,17 @@ function App() {
 
           {/* Protected Dashboard Routes */}
           <Route
-  path="/dashboard"
-  element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
->
-  <Route index element={<DashboardHome />} />
-  <Route path="events" element={<Events />} />
-  <Route path="events/:id" element={<EventManagement />} />
-  <Route path="profile" element={<Profile />} />
-</Route>
+            path="/dashboard"
+            element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
+          >
+            <Route index element={<DashboardHome />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/:id" element={<EventManagement />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
 
         </Routes>
-      </Router>
+      </BrowserRouter>
     </UserProvider>
   );
 }
