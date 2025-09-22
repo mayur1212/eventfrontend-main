@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -10,7 +9,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Home from './pages/Home/home';
 import RegisterForm from './components/RegisterForm/RegisterForm';
 import Navbar from './components/navbar/Navbar';
-import Login from './components/login/login';
+import Login from './components/login/loginogin';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import DashboardHome from './pages/dashboard/DashboardHome';
@@ -52,7 +51,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
           </Route>
 
-          {/* Fallback route for any unmatched URL */}
+          {/* Catch-all fallback */}
           <Route path="*" element={<PublicLayout />}>
             <Route index element={<Home />} />
           </Route>
