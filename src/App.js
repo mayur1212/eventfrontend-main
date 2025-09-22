@@ -1,5 +1,6 @@
+// src/App.js
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -16,6 +17,7 @@ import DashboardHome from './pages/dashboard/DashboardHome';
 import Events from './pages/dashboard/Events';
 import EventManagement from './pages/dashboard/EventManagement';
 import Profile from './pages/dashboard/Profile';
+import NotFound from './pages/NotFound/NotFound'; // Create this page for unmatched routes
 
 // Auth & Context
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,7 +26,7 @@ import { UserProvider } from './context/UserContext';
 function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/"> {/* Ensure basename is "/" for Render */}
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout />}>
@@ -38,7 +40,7 @@ function App() {
 
           {/* Protected Dashboard Routes */}
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={
               <ProtectedRoute>
                 <DashboardLayout />
@@ -49,12 +51,12 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<EventManagement />} />
             <Route path="profile" element={<Profile />} />
+            {/* Catch any unmatched dashboard route */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
 
-          {/* Catch-all fallback */}
-          <Route path="*" element={<PublicLayout />}>
-            <Route index element={<Home />} />
-          </Route>
+          {/* Catch-all fallback for public routes */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>
