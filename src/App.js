@@ -17,7 +17,7 @@ import DashboardHome from './pages/dashboard/DashboardHome';
 import Events from './pages/dashboard/Events';
 import EventManagement from './pages/dashboard/EventManagement';
 import Profile from './pages/dashboard/Profile';
-import NotFound from './pages/NotFound/NotFound'; // Create this page for unmatched routes
+import NotFound from './pages/NotFound/NotFound'; // ✅ 404 page
 
 // Auth & Context
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,7 +26,7 @@ import { UserProvider } from './context/UserContext';
 function App() {
   return (
     <UserProvider>
-      <BrowserRouter basename="/"> {/* Ensure basename is "/" for Render */}
+      <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout />}>
@@ -40,7 +40,7 @@ function App() {
 
           {/* Protected Dashboard Routes */}
           <Route
-            path="/dashboard/*"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <DashboardLayout />
@@ -51,11 +51,9 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<EventManagement />} />
             <Route path="profile" element={<Profile />} />
-            {/* Catch any unmatched dashboard route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
 
-          {/* Catch-all fallback for public routes */}
+          {/* Catch-all fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
