@@ -7,7 +7,7 @@ import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 
 // Pages
-import Home from './pages/Home/Home';
+import Home from './pages/Home/home';
 import RegisterForm from './components/RegisterForm/RegisterForm';
 import Navbar from './components/navbar/Navbar';
 import Login from './components/login/login';
