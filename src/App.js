@@ -9,7 +9,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Home from './pages/Home/home';
 import RegisterForm from './components/RegisterForm/RegisterForm';
 import Navbar from './components/navbar/Navbar';
-import Login from './components/login/loginogin';
+import Login from './components/login/login';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import DashboardHome from './pages/dashboard/DashboardHome';
