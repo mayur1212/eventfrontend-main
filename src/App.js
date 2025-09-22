@@ -52,7 +52,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
           </Route>
 
-          {/* Fallback route for SPA */}
+          {/* Fallback route for any unmatched URL */}
           <Route path="*" element={<PublicLayout />}>
             <Route index element={<Home />} />
           </Route>
