@@ -7,7 +7,16 @@ const Banner = () => {
   const handleVideoLoad = () => {
     if (videoRef.current) {
       videoRef.current.currentTime = 16;
-      videoRef.current.play();
+      // Try to play safely
+      videoRef.current.play().catch((err) => {
+        console.warn("Autoplay blocked, waiting for user interaction:", err);
+        // Add a one-time click listener
+        const playOnClick = () => {
+          videoRef.current.play();
+          document.removeEventListener("click", playOnClick);
+        };
+        document.addEventListener("click", playOnClick);
+      });
     }
   };
 
@@ -56,12 +65,12 @@ const Banner = () => {
           style={{
             fontSize: "clamp(1.5rem, 4vw, 4rem)",
             fontWeight: "bold",
-            color: "#fff", // text fill color
+            color: "#fff",
             textTransform: "uppercase",
             lineHeight: 1.4,
             margin: 0,
-            WebkitTextStroke: "2px black", // black border around text
-            textShadow: "2px 2px 6px rgba(0,0,0,0.6)", // extra depth
+            WebkitTextStroke: "2px black",
+            textShadow: "2px 2px 6px rgba(0,0,0,0.6)",
           }}
         >
           A GLOBAL ROBOTICS COMMUNITY <br />
