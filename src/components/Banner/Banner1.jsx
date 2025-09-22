@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import firstVideo from "../../assets/firstvideo.mp4";
 
-const Banner = () => {
+const Banner1 = () => {
   const videoRef = useRef(null);
 
   const handleVideoLoad = () => {
@@ -81,4 +81,4 @@ const Banner = () => {
   );
 };
 
-export default Banner;
+export default Banner1;
