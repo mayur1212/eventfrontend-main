@@ -28,7 +28,7 @@ function App() {
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
+          {/* ✅ Public Routes */}
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<Home />} />
             <Route path="register" element={<RegisterForm />} />
@@ -38,7 +38,7 @@ function App() {
             <Route path="reset-password/:token" element={<ResetPassword />} />
           </Route>
 
-          {/* Protected Dashboard Routes */}
+          {/* ✅ Protected Dashboard Routes */}
           <Route
             path="/dashboard"
             element={
@@ -51,9 +51,11 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<EventManagement />} />
             <Route path="profile" element={<Profile />} />
+            {/* Catch-all inside dashboard → redirect to 404 */}
+            <Route path="*" element={<NotFound />} />
           </Route>
 
-          {/* Catch-all fallback */}
+          {/* ✅ Global Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
