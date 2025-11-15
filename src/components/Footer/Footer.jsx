@@ -10,29 +10,30 @@ const Footer = () => {
         <div className="md:col-span-1">
           <img src={ftcLogo} alt="FTC Logo" className="h-12 mb-6" />
           <div className="flex space-x-4">
-            <a href="#" className="text-white hover:text-gray-300 transition"><FaFacebookF size={20} /></a>
-            <a href="#" className="text-white hover:text-gray-300 transition"><FaYoutube size={20} /></a>
-            <a href="#" className="text-white hover:text-gray-300 transition"><FaInstagram size={20} /></a>
-            <a href="#" className="text-white hover:text-gray-300 transition"><FaLinkedinIn size={20} /></a>
+            <a href="/" className="text-white hover:text-gray-300 transition"><FaFacebookF size={20} /></a>
+            <a href="/" className="text-white hover:text-gray-300 transition"><FaYoutube size={20} /></a>
+            <a href="/" className="text-white hover:text-gray-300 transition"><FaInstagram size={20} /></a>
+            <a href="/" className="text-white hover:text-gray-300 transition"><FaLinkedinIn size={20} /></a>
           </div>
         </div>
 
         {/* Column 1 - Navigation */}
+        
         <div>
           <ul className="space-y-2">
-            <li><a href="#" className="hover:text-pink-400 transition">Home</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">About FTC</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">About FIRST®</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Our Supporters</a></li>
+            <li><a href="/" className="hover:text-pink-400 transition">Home</a></li>
+            <li><a href="/programs/first-tech-challenge" className="hover:text-pink-400 transition">About FTC</a></li>
+            <li><a href="/programs/first-lego-league" className="hover:text-pink-400 transition">About FIRST®</a></li>
+            <li><a href="/Careers" className="hover:text-pink-400 transition">Our Supporters</a></li>
           </ul>
         </div>
 
         {/* Column 2 - Programs */}
         <div>
           <ul className="space-y-2">
-            <li><a href="#" className="hover:text-pink-400 transition">Games & Seasons</a></li>
+            <li><a href="/programs/first-robotics-competition" className="hover:text-pink-400 transition">Games & Seasons</a></li>
             <li><a href="#" className="hover:text-pink-400 transition">Resource Library</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Register as Volunteer</a></li>
+            <li><a href="/programs/first-robotics-competition" className="hover:text-pink-400 transition">Register as  User</a></li>
             <li><a href="#" className="hover:text-pink-400 transition">Register your Team</a></li>
           </ul>
         </div>
@@ -40,10 +41,10 @@ const Footer = () => {
         {/* Column 3 - Legal */}
         <div>
           <ul className="space-y-2">
-            <li><a href="#" className="hover:text-pink-400 transition">Terms of Service</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Shipping & Refund Policy</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Contact Us</a></li>
+            <li><a href="/" className="hover:text-pink-400 transition">Terms of Service</a></li>
+            <li><a href="/" className="hover:text-pink-400 transition">Shipping & Refund Policy</a></li>
+            <li><a href="/" className="hover:text-pink-400 transition">Privacy Policy</a></li>
+            <li><a href="/help/contactus" className="hover:text-pink-400 transition">Contact Us</a></li>
           </ul>
         </div>
       </div>

@@ -1,24 +1,35 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import firstVideo from "../../assets/firstvideo.mp4";
 
 const Banner1 = () => {
   const videoRef = useRef(null);
 
-  const handleVideoLoad = () => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = 16;
-      // Try to play safely
-      videoRef.current.play().catch((err) => {
-        console.warn("Autoplay blocked, waiting for user interaction:", err);
-        // Add a one-time click listener
-        const playOnClick = () => {
-          videoRef.current.play();
-          document.removeEventListener("click", playOnClick);
-        };
-        document.addEventListener("click", playOnClick);
-      });
-    }
+  const handleAutoplay = () => {
+    if (!videoRef.current) return;
+
+    videoRef.current.currentTime = 16;
+
+    videoRef.current.play().catch(() => {
+      console.warn("Autoplay blocked. Waiting for user click...");
+    });
   };
+
+  // Force user-click fallback if autoplay is blocked
+  useEffect(() => {
+    const handleUserClick = () => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+      // remove listener after first click
+      document.removeEventListener("click", handleUserClick);
+    };
+
+    document.addEventListener("click", handleUserClick);
+
+    return () => {
+      document.removeEventListener("click", handleUserClick);
+    };
+  }, []);
 
   const handleTimeUpdate = () => {
     if (videoRef.current && videoRef.current.currentTime < 16) {
@@ -47,7 +58,7 @@ const Banner1 = () => {
         muted
         playsInline
         preload="auto"
-        onLoadedMetadata={handleVideoLoad}
+        onLoadedMetadata={handleAutoplay}
         onTimeUpdate={handleTimeUpdate}
         style={{
           position: "absolute",

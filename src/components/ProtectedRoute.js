@@ -1,15 +1,17 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+// src/components/ProtectedRoute.jsx
+import React, { useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const ProtectedRoute = ({ children }) => {
-  // Check if the user is logged in (you can adjust this to use `localStorage` or `sessionStorage`)
-  const isAuthenticated = localStorage.getItem('token'); // Assuming token is stored in localStorage
+  const { user, loading } = useContext(UserContext);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" />; // Redirect to login page if not authenticated
-  }
+  if (loading)
+    return <div className="flex justify-center items-center h-screen text-gray-500">Loading...</div>;
 
-  return children; // If authenticated, render the child components (i.e., DashboardLayout)
+  if (!user) return <Navigate to="/login" replace />;
+
+  return children;
 };
 
 export default ProtectedRoute;

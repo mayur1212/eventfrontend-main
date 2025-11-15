@@ -21,31 +21,45 @@ const Navbar = () => {
     setDropdownOpen(dropdownOpen === menu ? null : menu);
   };
 
+  // ✅ Updated menu data with label + path for each dropdown item
   const menus = [
     {
       title: "PROGRAMS",
-      path: "/programs",
+      path: "/programs/first-lego-league",
       items: [
-        "FIRST LEGO League",
-        "FIRST Tech Challenge",
-        "FIRST Robotics Competition",
-        "Youth Safety",
+        { label: "FIRST LEGO League", path: "/programs/first-lego-league" },
+        { label: "FIRST Tech Challenge", path: "/programs/first-tech-challenge" },
+        { label: "FIRST Robotics Competition", path: "/programs/first-robotics-competition" },
+        
       ],
     },
     {
       title: "COMMUNITY",
-      path: "/community",
-      items: ["Students", "Mentors", "Alumni", "Partners"],
+      path: "/community/mentors",
+      items: [
+        { label: "Volunteer ", path: "/community/students" },
+        { label: "Mentors", path: "/community/mentors" },
+        { label: "Alumni", path: "/community/alumni" },
+       
+      ],
     },
     {
       title: "WAYS TO HELP",
-      path: "/help",
-      items: ["Donate", "Volunteer", "Sponsorship"],
+      path: "/help/donate",
+      items: [
+        { label: "Donate", path: "/help/donate" },
+        { label: "Contact us", path: "/help/contactus" },
+        { label: "Sponsorship", path: "/help/sponsorship" },
+      ],
     },
     {
       title: "ABOUT",
-      path: "/about",
-      items: ["Our Mission", "Leadership", "Careers"],
+      path: "/about-first",
+      items: [
+        { label: "About First", path: "/about-first" },
+        { label: "Leadership", path: "/leadership" },
+        { label: "Support", path: "/Careers" },
+      ],
     },
   ];
 
@@ -73,21 +87,26 @@ const Navbar = () => {
               <Link
                 to={menu.path}
                 className={`text-gray-800 hover:text-blue-600 transition-all duration-300 transform hover:scale-105 ${
-                  location.pathname.startsWith(menu.path) ? "text-blue-600 font-bold" : ""
+                  location.pathname.startsWith(menu.path)
+                    ? "text-blue-600 font-bold"
+                    : ""
                 }`}
               >
                 {menu.title}
               </Link>
 
+              {/* Dropdown for Desktop */}
               <ul
                 className={`absolute left-0 mt-2 w-56 bg-white shadow-lg rounded-md opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transform transition-all duration-300`}
               >
                 {menu.items.map((item) => (
-                  <li
-                    key={item}
-                    className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 transition-all duration-300 rounded-md cursor-pointer transform hover:scale-105"
-                  >
-                    {item}
+                  <li key={item.label}>
+                    <Link
+                      to={item.path}
+                      className="block px-4 py-2 hover:bg-blue-100 hover:text-blue-600 transition-all duration-300 rounded-md transform hover:scale-105"
+                    >
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -141,17 +160,22 @@ const Navbar = () => {
                   {dropdownOpen === menu.title ? "-" : "+"}
                 </span>
               </button>
+
+              {/* Dropdown for Mobile */}
               <ul
                 className={`ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ${
                   dropdownOpen === menu.title ? "max-h-60" : "max-h-0"
                 }`}
               >
                 {menu.items.map((item) => (
-                  <li
-                    key={item}
-                    className="py-1 hover:text-blue-600 cursor-pointer transition-all duration-300"
-                  >
-                    {item}
+                  <li key={item.label}>
+                    <Link
+                      to={item.path}
+                      className="block py-1 hover:text-blue-600 transition-all duration-300"
+                      onClick={() => setMenuOpen(false)} // Close menu after click
+                    >
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

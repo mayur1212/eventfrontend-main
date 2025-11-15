@@ -1,87 +1,60 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { FaSearch, FaPlus } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../context/UserContext';
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { FaSearch, FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const Topbar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [fetchError, setFetchError] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, loading: userLoading, logout } = useContext(UserContext);
 
-  // Close dropdown if clicked outside
+  // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
+    const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch user profile
+  // Optional: keep context in sync if localStorage changed (extra safety)
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token')?.trim();
-      if (!token || token === 'undefined') return;
-
-      setLoading(true);
-      setFetchError(null);
-
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/me`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          // ✅ Fix the profile image URL logic
-          const imageUrl = data?.profileImg?.startsWith('http')
-            ? data.profileImg
-            : `${process.env.REACT_APP_API_BASE_URL}${data.profileImg}`;
-
-          setUser({
-            ...data,
-            profileImage: imageUrl || 'https://i.pravatar.cc/300',
-          });
-        } else {
-          let errData = {};
+    const onStorage = (e) => {
+      if (e.key === "user" || e.key === "user_updated_at") {
+        const saved = localStorage.getItem("user");
+        if (saved) {
           try {
-            errData = await response.json();
+            const parsed = JSON.parse(saved);
+            // update context if different
+            if (!user || parsed?.profileImg !== user.profileImg) {
+              setUser(parsed);
+            }
           } catch {
-            errData = { message: response.statusText };
+            // ignore
           }
-          console.error('Fetch user failed:', errData);
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
+        } else {
           setUser(null);
-          navigate('/');
         }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        setFetchError(error.message);
-      } finally {
-        setLoading(false);
       }
     };
-
-    fetchUser();
-  }, [navigate, setUser]);
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [setUser, user]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-    setUser(null);
-    navigate('/');
+    // call context logout if provided
+    if (logout) {
+      logout();
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+    }
+    navigate("/");
   };
 
   return (
@@ -112,38 +85,42 @@ const Topbar = () => {
             title="Profile Menu"
           >
             <img
-              src={user?.profileImage || 'https://i.pravatar.cc/300'}
+              src={user?.profileImg || "https://i.pravatar.cc/300"}
               alt="Profile"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://i.pravatar.cc/300";
+              }}
             />
           </div>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-md shadow-lg z-50">
+            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
               <p
                 onClick={() => {
-                  navigate('/dashboard/profile');
+                  navigate("/dashboard/profile");
                   setDropdownOpen(false);
                 }}
                 className="block px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
-                title="Go to Profile"
               >
                 Profile
               </p>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  handleLogout();
+                  setDropdownOpen(false);
+                }}
                 className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                title="Logout"
               >
-                Logoutmmm
+                Logout
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {loading && <div className="text-sm text-pink-200 ml-4">Loading user...</div>}
-      {fetchError && <div className="text-sm text-red-400 ml-4">Error: {fetchError}</div>}
+      {userLoading && <div className="text-sm text-pink-200 ml-4">Loading user...</div>}
     </div>
   );
 };
