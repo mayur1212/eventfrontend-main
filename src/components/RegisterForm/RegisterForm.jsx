@@ -6,7 +6,6 @@ import axios from "axios";
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 
-// Event Images
 import michiana from "../../assets/eventlogo1.png";
 import runrobots from "../../assets/eventrobetic.png";
 import european from "../../assets/europeevent1.png";
@@ -28,6 +27,7 @@ const RegisterForm = () => {
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [eventPopup, setEventPopup] = useState(false);
 
@@ -41,61 +41,67 @@ const RegisterForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Fixed validation (No ESLint warnings now)
   const validateForm = () => {
-    const errors = {};
-    let valid = true;
+  const errors = {};
+  let valid = true;
 
-    const phonePattern = /^[0-9]{10}$/;
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[0-9]{10}$/;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!form.eventName) {
-      errors.eventName = "Select an event";
-      valid = false;
-    }
-    if (!form.clientName) {
-      errors.clientName = "Client Name required";
-      valid = false;
-    }
-    if (!phonePattern.test(form.contactNumber)) {
-      errors.contactNumber = "Valid 10-digit number required";
-      valid = false;
-    }
-    if (!emailPattern.test(form.email)) {
-      errors.email = "Invalid email";
-      valid = false;
-    }
-    if (!form.password || form.password.length < 6) {
-      errors.password = "Min 6 characters";
-      valid = false;
-    }
-    if (!form.venue) {
-      errors.venue = "Venue required";
-      valid = false;
-    }
-    if (!form.city) {
-      errors.city = "City required";
-      valid = false;
-    }
-    if (!form.startDate || !form.endDate) {
-      errors.date = "Start and End dates required";
-      valid = false;
-    }
+  if (!form.eventName) {
+    errors.eventName = "Select an event";
+    valid = false;
+  }
+  if (!form.clientName) {
+    errors.clientName = "Client Name required";
+    valid = false;
+  }
+  if (!phonePattern.test(form.contactNumber)) {
+    errors.contactNumber = "Valid 10-digit number required";
+    valid = false;
+  }
+  if (!emailPattern.test(form.email)) {
+    errors.email = "Invalid email";
+    valid = false;
+  }
+  if (!form.password || form.password.length < 6) {
+    errors.password = "Min 6 characters";
+    valid = false;
+  }
+  if (!form.venue) {
+    errors.venue = "Venue required";
+    valid = false;
+  }
+  if (!form.city) {
+    errors.city = "City required";
+    valid = false;
+  }
+  if (!form.startDate || !form.endDate) {
+    errors.date = "Start and End dates required";
+    valid = false;
+  }
 
-    setFormErrors(errors);
-    return valid;
-  };
+  setFormErrors(errors);
+  return valid;
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/register`, form);
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/register`, form);
 
-      // ✅ Redirect to Payment & send form data
-      navigate("/payment", { state: form });
+      setError("");
+      setSuccess("🎉 Registration successful! Check your email.");
+
+      setTimeout(() => {
+        navigate("/payment", { state: form });
+      }, 2000);
+
     } catch (err) {
+      setSuccess("");
       setError(err.response?.data?.message || "Registration failed.");
     }
   };
@@ -108,9 +114,11 @@ const RegisterForm = () => {
         style={{ backgroundImage: "linear-gradient(to bottom, rgb(111, 173, 255), #ffffff)" }}>
 
         <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 w-full max-w-md">
+
           <h2 className="text-xl font-semibold text-center mb-2">Register for an Event</h2>
 
           {error && <p className="text-red-500 text-sm mb-2 text-center">{error}</p>}
+          {success && <p className="text-green-600 text-sm mb-2 text-center font-semibold">{success}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-3">
 
@@ -155,6 +163,7 @@ const RegisterForm = () => {
               className="w-full py-2 mt-3 rounded-md bg-black text-white font-semibold hover:opacity-90 transition">
               Register
             </button>
+
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
@@ -163,10 +172,10 @@ const RegisterForm = () => {
         </div>
       </div>
 
-      {/* Select Event Popup */}
+      {/* Event Popup */}
       {eventPopup && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center z-50">
-          <div className="relative bg-white shadow-2xl rounded-2xl w-[95%] max-w-4xl p-8 border border-gray-200">
+          <div className="relative bg-white shadow-2xl rounded-2xl w-[95%] max-w-4xl p-8">
             <button onClick={() => setEventPopup(false)}
               className="absolute top-4 right-4 bg-white hover:bg-gray-200 text-gray-700 w-10 h-10 flex items-center justify-center rounded-full shadow-md">
               ✕
@@ -183,8 +192,8 @@ const RegisterForm = () => {
                     setForm({ ...form, eventName: e.name, eventImage: e.img });
                     setEventPopup(false);
                   }}
-                  className="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all">
-                  <div className="bg-[#0057ff] text-white text-sm font-bold text-center py-2 uppercase">
+                  className="cursor-pointer bg-white rounded-xl overflow-hidden shadow-lg border hover:shadow-2xl hover:-translate-y-2 transition-all">
+                  <div className="bg-[#0057ff] text-white text-sm font-bold text-center py-2">
                     {e.name}
                   </div>
                   <img src={e.img} alt={e.name} className="w-full h-40 object-cover" />
