@@ -1,6 +1,6 @@
 // src/components/ValueAbout/ValueAbout.jsx
 import React from "react";
-import { FaLightbulb, FaHandsHelping, FaRocket, FaUsers, FaSmile } from "react-icons/fa";
+import { FaLightbulb, FaHandsHelping, FaRocket, FaSmile } from "react-icons/fa";
 import { GiGearStick } from "react-icons/gi";
 import { RiTeamFill } from "react-icons/ri";
 import { motion } from "framer-motion";

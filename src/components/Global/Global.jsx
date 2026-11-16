@@ -1,38 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Globe2, Handshake, GraduationCap, Atom } from "lucide-react";
 
+const stats = [
+  {
+    id: 1,
+    icon: <Globe2 className="w-14 h-14 text-blue-600 animate-bounce" />,
+    number: 3200000,
+    text: "participants since 1989",
+  },
+  {
+    id: 2,
+    icon: <Handshake className="w-14 h-14 text-green-500 animate-pulse" />,
+    number: 110,
+    text: "countries with FIRST Robotics teams",
+  },
+  {
+    id: 3,
+    icon: <GraduationCap className="w-14 h-14 text-yellow-500 animate-spin-slow" />,
+    number: 83,
+    text: "% of alumni declare STEM majors by 4th year",
+  },
+  {
+    id: 4,
+    icon: <Atom className="w-14 h-14 text-red-500 animate-bounce" />,
+    number: 96,
+    text: "% of students persevere despite challenges",
+  },
+];
+
 const Global = () => {
   const [counts, setCounts] = useState([0, 0, 0, 0]);
   const cardRefs = useRef([]);
   const dot1Ref = useRef(null);
   const dot2Ref = useRef(null);
 
-  const stats = [
-    {
-      id: 1,
-      icon: <Globe2 className="w-14 h-14 text-blue-600 animate-bounce" />,
-      number: 3200000,
-      text: "participants since 1989",
-    },
-    {
-      id: 2,
-      icon: <Handshake className="w-14 h-14 text-green-500 animate-pulse" />,
-      number: 110,
-      text: "countries with FIRST Robotics teams",
-    },
-    {
-      id: 3,
-      icon: <GraduationCap className="w-14 h-14 text-yellow-500 animate-spin-slow" />,
-      number: 83,
-      text: "% of alumni declare STEM majors by 4th year",
-    },
-    {
-      id: 4,
-      icon: <Atom className="w-14 h-14 text-red-500 animate-bounce" />,
-      number: 96,
-      text: "% of students persevere despite challenges",
-    },
-  ];
 
   // Animated counters
   useEffect(() => {
@@ -64,11 +65,7 @@ const Global = () => {
       if (card) observer.observe(card);
     });
 
-    return () => {
-      cardRefs.current.forEach((card) => {
-        if (card) observer.unobserve(card);
-      });
-    };
+    return () => observer.disconnect();
   }, []);
 
   // Parallax scroll for background dots

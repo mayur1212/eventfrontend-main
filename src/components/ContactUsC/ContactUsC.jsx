@@ -253,12 +253,12 @@ const ContactUsC = () => {
               Find what you need quickly from our popular FAQs.
             </p>
             <ul className="space-y-2 text-blue-700 font-medium list-disc list-inside">
-              <li><a href="#" className="hover:underline">How do I apply to volunteer for an event?</a></li>
-              <li><a href="#" className="hover:underline">How do I receive emails from FIRST?</a></li>
-              <li><a href="#" className="hover:underline">How can I create a new team?</a></li>
-              <li><a href="#" className="hover:underline">How do I invite youth members via Express Enrollment?</a></li>
-              <li><a href="#" className="hover:underline">Procurement Policy for Canada teams?</a></li>
-              <li><a href="#" className="hover:underline">Do I need extra clearances in California?</a></li>
+              <li><span>How do I apply to volunteer for an event?</span></li>
+              <li><span>How do I receive emails from FIRST?</span></li>
+              <li><span>How can I create a new team?</span></li>
+              <li><span>How do I invite youth members via Express Enrollment?</span></li>
+              <li><span>Procurement Policy for Canada teams?</span></li>
+              <li><span>Do I need extra clearances in California?</span></li>
             </ul>
           </div>
 

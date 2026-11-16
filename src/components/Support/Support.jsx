@@ -13,7 +13,7 @@ const Support = () => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setAnimate(true); // trigger animation when component is in viewport
-          observer.unobserve(containerRef.current); // optional: animate only once
+          observer.unobserve(entry.target); // optional: animate only once
         }
       },
       {
@@ -25,9 +25,7 @@ const Support = () => {
       observer.observe(containerRef.current);
     }
 
-    return () => {
-      if (containerRef.current) observer.unobserve(containerRef.current);
-    };
+    return () => observer.disconnect();
   }, []);
 
   const sectionStyle = {
@@ -127,7 +125,7 @@ const Support = () => {
               Supported by an industry mentor, teams of young people design and build a robot to compete in tournaments and earn awards.
             </p>
             <a
-              href="#"
+              href="/programs/first-tech-challenge"
               style={buttonStyle}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#0056b3")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}
@@ -146,7 +144,7 @@ const Support = () => {
               We work with schools and youth groups to provide underserved young people with access to the knowledge and tools to thrive.
             </p>
             <a
-              href="#"
+              href="/help/contactus"
               style={buttonStyle}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#0056b3")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}
@@ -165,7 +163,7 @@ const Support = () => {
               We provide equipment bursaries and travel awards to make STEM inclusive and accessible for those who’ll benefit most.
             </p>
             <a
-              href="#"
+              href="/help/sponsorship"
               style={buttonStyle}
               onMouseEnter={(e) => (e.target.style.backgroundColor = "#0056b3")}
               onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}

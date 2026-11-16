@@ -37,7 +37,7 @@ const ChallengeLegoFirst = () => {
         <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
           Watch the UNEARTHED season videos for Discover, Explore, and Challenge
           then download the materials you need to get started here or at
-          <a href="#" className="text-blue-600 ml-1 hover:underline">
+          <a href="https://www.firstlegoleague.org/" className="text-blue-600 ml-1 hover:underline">
             firstlegoleague.org
           </a>
         </p>
@@ -169,18 +169,21 @@ const ChallengeLegoFirst = () => {
               title: "Follow Us on Social",
               desc: "Follow us on Facebook or YouTube for team stories, updates, and inspiration.",
               link: "Facebook →",
+              href: "https://www.facebook.com/FIRSTOfficial",
               img: socialImg,
             },
             {
               title: "Get Inspired",
               desc: "Watch inspiring FIRST LEGO League videos and share your creations.",
               link: "Read the Latest →",
+              href: "/community/students",
               img: inspireImg,
             },
             {
               title: "Dig Into UNEARTHED",
               desc: "Download challenge guides, team updates, and more from FIRST LEGO League.",
               link: "View Resources →",
+              href: "/programs/first-lego-league",
               img: unearthedImg,
             },
           ].map((card, i) => (
@@ -198,7 +201,7 @@ const ChallengeLegoFirst = () => {
               />
               <h3 className="font-bold mb-2">{card.title}</h3>
               <p className="text-gray-600 text-sm mb-3">{card.desc}</p>
-              <a href="#" className="text-blue-600 font-semibold hover:underline">
+              <a href={card.href} className="text-blue-600 font-semibold hover:underline">
                 {card.link}
               </a>
             </motion.div>

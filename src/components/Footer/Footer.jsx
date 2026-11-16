@@ -32,9 +32,9 @@ const Footer = () => {
         <div>
           <ul className="space-y-2">
             <li><a href="/programs/first-robotics-competition" className="hover:text-pink-400 transition">Games & Seasons</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Resource Library</a></li>
+            <li><a href="/programs/first-tech-challenge" className="hover:text-pink-400 transition">Resource Library</a></li>
             <li><a href="/programs/first-robotics-competition" className="hover:text-pink-400 transition">Register as  User</a></li>
-            <li><a href="#" className="hover:text-pink-400 transition">Register your Team</a></li>
+            <li><a href="/register" className="hover:text-pink-400 transition">Register your Team</a></li>
           </ul>
         </div>
 

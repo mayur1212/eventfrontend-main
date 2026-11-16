@@ -41,18 +41,21 @@ const RtxFtc = () => {
               title: "Follow Us on Social",
               desc: "Follow us on Facebook and YouTube for the latest FIRST Tech Challenge updates, team stories, highlights, and more.",
               link: "Facebook →",
+              href: "https://www.facebook.com/FIRSTOfficial",
               img: FreeContentImg,
             },
             {
               title: "Get Inspired",
               desc: "Watch inspiring FIRST Tech Challenge stories and share your team's innovations.",
               link: "Read the Latest →",
+              href: "/community/students",
               img: BlogImg,
             },
             {
               title: "Dig Into DECODE",
               desc: "Download challenge guides, event updates, and more from FIRST Tech Challenge.",
               link: "View Resources →",
+              href: "/programs/first-tech-challenge",
               img: SocialImg,
             },
           ].map((card, i) => (
@@ -69,7 +72,7 @@ const RtxFtc = () => {
               <h3 className="font-bold mb-2">{card.title}</h3>
               <p className="text-gray-600 text-sm mb-3">{card.desc}</p>
               <a
-                href="#"
+                href={card.href}
                 className="text-blue-600 font-semibold hover:underline"
               >
                 {card.link}
