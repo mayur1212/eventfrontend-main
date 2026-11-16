@@ -17,6 +17,10 @@ import EventManagement from "./pages/dashboard/EventManagement";
 import Profile from "./pages/dashboard/Profile";
 import NotFound from "./pages/NotFound/NotFound";
 import Payment from "./pages/Payment/Payment";
+import KitsBuy from "./pages/KitsBuy/KitsBuy";
+import KitCheckout from "./pages/KitsBuy/KitCheckout";
+import KitProducts from "./pages/dashboard/KitProducts";
+import KitOrders from "./pages/dashboard/KitOrders";
 
 // Guards
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -61,7 +65,7 @@ function App() {
 
         <Routes>
 
-          {/* ✅ ADMIN PROTECTED ROUTES */}
+          {/* ADMIN PROTECTED ROUTES */}
           <Route
             path="/dashboard/*"
             element={
@@ -74,6 +78,8 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<EventManagement />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="products" element={<KitProducts />} />
+            <Route path="kit-orders" element={<KitOrders />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
@@ -85,6 +91,8 @@ function App() {
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="reset-password/:token" element={<ResetPassword />} />
             <Route path="payment" element={<Payment />} />
+            <Route path="kits-buy" element={<KitsBuy />} />
+            <Route path="kits-buy/checkout/:productId" element={<KitCheckout />} />
 
             {/* Programs */}
             <Route path="programs/first-lego-league" element={<FirstLegoLeague />} />

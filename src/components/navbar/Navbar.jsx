@@ -76,7 +76,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8 font-semibold">
+        <div className="hidden lg:flex items-center space-x-6 font-semibold">
           {menus.map((menu) => (
             <div
               key={menu.title}
@@ -113,6 +113,10 @@ const Navbar = () => {
             </div>
           ))}
 
+          <Link to="/kits-buy" aria-current={location.pathname === "/kits-buy" ? "page" : undefined} className={`whitespace-nowrap transition-colors hover:text-blue-600 ${location.pathname === "/kits-buy" ? "text-blue-600" : "text-gray-800"}`}>
+            KITS BUY
+          </Link>
+
           {/* Buttons */}
           <div className="flex space-x-4 ml-6">
             <Link
@@ -131,8 +135,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Hamburger */}
-        <div className="md:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)}>
+        <div className="lg:hidden">
+          <button aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -140,7 +144,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-500 ${
+        className={`lg:hidden overflow-hidden transition-all duration-500 ${
           menuOpen ? "max-h-screen" : "max-h-0"
         }`}
       >
@@ -181,6 +185,10 @@ const Navbar = () => {
               </ul>
             </li>
           ))}
+
+          <li>
+            <Link to="/kits-buy" onClick={() => setMenuOpen(false)} aria-current={location.pathname === "/kits-buy" ? "page" : undefined} className="block py-2 text-blue-600">KITS BUY</Link>
+          </li>
 
           {/* Mobile Buttons */}
           <div className="flex flex-col space-y-2 mt-4">

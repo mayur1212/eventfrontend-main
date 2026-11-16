@@ -1,5 +1,6 @@
+import API_BASE_URL from "../../api";
 import React, { useState } from 'react';
-import axios from 'axios';
+import { api as axios } from "../../api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/forgot-password', { email });
+      const res = await axios.post(`${API_BASE_URL}/forgot-password`, { email });
       setMessage(res.data.message || 'Check your inbox for the reset link.');
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Try again.');

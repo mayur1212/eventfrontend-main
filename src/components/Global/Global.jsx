@@ -123,7 +123,7 @@ const Global = () => {
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .animate-in {
           opacity: 1 !important;
           transform: translateY(0px) !important;

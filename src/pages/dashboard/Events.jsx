@@ -1,243 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { api, apiError } from "../../api";
+import { eventStatus } from "./DashboardHome";
 
-
-const Events = () => {
+const emptyEvent = { eventName: "", clientName: "", contactNumber: "", email: "", venue: "", city: "", startDate: "", endDate: "" };
+export default function Events() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState(null);
-  const [newEvent, setNewEvent] = useState(initialEventState());
-  const navigate = useNavigate();
-
-
-  function initialEventState() {
-    return {
-      eventName: '',
-      clientName: '',
-      contactNumber: '',
-      email: '',
-      password: '',
-      venue: '',
-      city: '',
-      startDate: '',
-      endDate: ''
-    };
-  }
-
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/events`)
-
-      .then(response => {
-        setRows(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching events:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewEvent(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [form, setForm] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+  const load = async () => {
+    setLoading(true); setError("");
+    try {
+      const { data } = await api.get("/events");
+      if (!Array.isArray(data)) throw new Error("Expected events array");
+      setRows(data);
+    } catch (err) { setError(apiError(err)); }
+    finally { setLoading(false); }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (currentEvent) {
-     axios.put(`${process.env.REACT_APP_API_BASE_URL}/events/${currentEvent._id}`, newEvent)
-
-        .then((res) => {
-          const updatedEvent = { ...newEvent, _id: currentEvent._id };
-          setRows(rows.map(event => event._id === currentEvent._id ? updatedEvent : event));
-          resetForm();
-        })
-        .catch(err => console.log(err));
-    } else {
-      axios.post(`${process.env.REACT_APP_API_BASE_URL}/events`, newEvent)
-
-        .then(response => {
-          setRows([...rows, response.data]);
-          resetForm();
-        })
-        .catch(err => console.log(err));
-    }
+  useEffect(() => { load(); }, []);
+  const filtered = rows.filter(e => [e.eventName, e.clientName, e.city, e.email].some(value => String(value || "").toLowerCase().includes(query.toLowerCase())));
+  const pages = Math.max(1, Math.ceil(filtered.length / 8));
+  const currentPage = Math.min(page, pages);
+  const save = async (event) => {
+    event.preventDefault();
+    if (form.endDate < form.startDate) return setError("End date must be on or after start date.");
+    setSaving(true); setError("");
+    const payload = Object.fromEntries(Object.keys(emptyEvent).map(key => [key, form[key]]));
+    try {
+      if (form._id) await api.put(`/events/${form._id}`, payload);
+      else await api.post("/events", payload);
+      setForm(null); await load();
+    } catch (err) { setError(apiError(err)); }
+    finally { setSaving(false); }
   };
-
-  const handleEdit = (event) => {
-    setCurrentEvent(event);
-    setNewEvent(event);
-    setModalOpen(true);
+  const remove = async (row) => {
+    if (!window.confirm(`Delete event "${row.eventName}"?`)) return;
+    setDeleting(row._id); setError("");
+    try { await api.delete(`/events/${row._id}`); setRows(prev => prev.filter(e => e._id !== row._id)); }
+    catch (err) { setError(apiError(err)); }
+    finally { setDeleting(null); }
   };
-
-  const handleDelete = (id) => {
-    axios.delete(`${process.env.REACT_APP_API_BASE_URL}/events/${id}`)
-
-      .then(() => {
-        setRows(rows.filter(event => event._id !== id));
-      })
-      .catch(err => console.log(err));
-  };
-
-  const resetForm = () => {
-    setNewEvent(initialEventState());
-    setCurrentEvent(null);
-    setModalOpen(false);
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString();
-  };
-
-  return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="text-center mt-4 mb-4">
-        <h2 className="text-3xl font-bold text-pink-400">Event Requests</h2>
-        <p className="text-gray-300 mt-1">Manage and review all current event requests</p>
-      </div>
-
-      {/* Top bar */}
-      <div className="flex justify-between items-center mb-4 mx-2">
-        <input
-          type="text"
-          placeholder="Search events..."
-          className="px-4 py-2 w-1/3 bg-purple-800 border border-purple-600 text-white rounded-lg focus:ring-2 focus:ring-pink-500 outline-none placeholder:text-gray-400"
-        />
-        <button
-          onClick={() => setModalOpen(true)}
-          className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-5 py-2 rounded-full shadow-md transition-transform transform hover:scale-105"
-        >
-          + Add Event
-        </button>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-auto rounded-lg shadow-lg border border-purple-800 mx-2">
-        {loading ? (
-          <div className="text-center py-4 text-white">Loading...</div>
-        ) : (
-          <table className="w-full table-auto text-sm">
-            <thead className="bg-gradient-to-r from-pink-600 to-purple-700 text-white text-left">
-              <tr>
-                <th className="px-4 py-3">Event Name</th>
-                <th className="px-4 py-3">Start Date</th>
-                <th className="px-4 py-3">End Date</th>
-                <th className="px-4 py-3">Client</th>
-                <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Venue</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-  {rows.map((row, idx) => (
-    <tr
-      key={idx}
-      onClick={() => navigate(`/dashboard/events/${row._id}`)}
-
-      className="cursor-pointer bg-gradient-to-r from-purple-900 to-black border-b border-purple-800 hover:bg-purple-800 transition duration-300"
-    >
-      <td className="px-4 py-3">{row.eventName}</td>
-      <td className="px-4 py-3">{formatDate(row.startDate)}</td>
-      <td className="px-4 py-3">{formatDate(row.endDate)}</td>
-      <td className="px-4 py-3">{row.clientName}</td>
-      <td className="px-4 py-3">{row.contactNumber}</td>
-      <td className="px-4 py-3">{row.venue}</td>
-      <td className="px-4 py-3">{row.email}</td>
-      <td className="px-4 py-3 flex space-x-2" onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700">
-          Edit
-        </button>
-        <button onClick={() => handleDelete(row._id)} className="text-red-500 hover:text-red-700">
-          Delete
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-          </table>
-        )}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center mt-6 space-x-3 pb-4">
-        {[1, 2, 3, 4].map((num) => (
-          <button
-            key={num}
-            className="w-10 h-10 rounded-full bg-purple-700 hover:bg-pink-500 transition-all duration-300 font-semibold"
-          >
-            {num}
-          </button>
-        ))}
-      </div>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-xl font-bold mb-4 text-black">{currentEvent ? 'Edit Event' : 'Add New Event'}</h3>
-            <form onSubmit={handleSubmit}>
-              {[
-                { name: 'eventName', placeholder: 'Event Name' },
-                { name: 'clientName', placeholder: 'Client Name' },
-                { name: 'contactNumber', placeholder: 'Contact Number' },
-                { name: 'venue', placeholder: 'Venue' },
-                { name: 'email', placeholder: 'Email', type: 'email' },
-                // { name: 'password', placeholder: 'Password', type: 'password' }, // optional
-              ].map(({ name, placeholder, type = 'text' }) => (
-                <input
-                  key={name}
-                  type={type}
-                  name={name}
-                  value={newEvent[name]}
-                  onChange={handleChange}
-                  placeholder={placeholder}
-                  className="mb-4 p-2 w-full border-2 border-black rounded-md text-black"
-                />
-              ))}
-              <input
-                type="date"
-                name="startDate"
-                value={newEvent.startDate}
-                onChange={handleChange}
-                className="mb-4 p-2 w-full border-2 border-black rounded-md text-black"
-              />
-              <input
-                type="date"
-                name="endDate"
-                value={newEvent.endDate}
-                onChange={handleChange}
-                className="mb-4 p-2 w-full border-2 border-black rounded-md text-black"
-              />
-              <div className="flex justify-between items-center">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-4 py-2 bg-gray-300 rounded-md text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-pink-500 text-white rounded-md"
-                >
-                  {currentEvent ? 'Update' : 'Add'} Event
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+  return <section className="space-y-5">
+    <h1 className="text-3xl font-bold text-pink-400">Events</h1>
+    <div className="flex flex-wrap gap-3">
+      <input aria-label="Search events" placeholder="Search name, client, city or email" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} className="bg-purple-950 border border-purple-600 rounded p-2 flex-1 min-w-0" />
+      <button onClick={load} disabled={loading} className="border border-purple-600 rounded px-4">Refresh</button>
+      <button onClick={() => { setError(""); setForm({ ...emptyEvent }); }} className="bg-pink-700 rounded px-4 py-2">+ Add event</button>
     </div>
-  );
-};
-
-export default Events;
+    {error && <p role="alert" className="dashboard-action delete">{error}</p>}
+    {loading ? <p role="status">Loading events…</p> : <>
+      <div className="overflow-x-auto"><table className="w-full text-left text-sm">
+        <thead className="bg-purple-900"><tr>{["Event", "Dates", "Client", "Venue", "Status", "Actions"].map(label => <th key={label} className="p-3">{label}</th>)}</tr></thead>
+        <tbody>{filtered.slice((currentPage - 1) * 8, currentPage * 8).map(row => <tr key={row._id} className="border-b border-purple-900">
+          <td className="p-3"><Link className="text-pink-300 underline" to={`/dashboard/events/${row._id}`}>{row.eventName}</Link></td>
+          <td className="p-3">{row.startDate?.slice(0, 10)} — {row.endDate?.slice(0, 10)}</td>
+          <td className="p-3">{row.clientName}<span className="block text-gray-400">{row.email}</span></td>
+          <td className="p-3">{row.venue}, {row.city}</td><td className="p-3">{eventStatus(row)}</td>
+          <td className="p-3 whitespace-nowrap"><button onClick={() => { setError(""); setForm({ ...row, startDate: row.startDate?.slice(0, 10) || "", endDate: row.endDate?.slice(0, 10) || "" }); }} className="dashboard-action edit mr-3">Edit</button><button disabled={deleting === row._id} onClick={() => remove(row)} className="dashboard-action delete">{deleting === row._id ? "Deleting…" : "Delete"}</button></td>
+        </tr>)}</tbody>
+      </table></div>
+      {!filtered.length && <p className="text-gray-400">{rows.length ? "No matching events." : "No events yet. Create your first event."}</p>}
+      <div className="flex gap-4 items-center"><button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span>Page {currentPage} of {pages} · {filtered.length} events</span><button disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Next</button></div>
+    </>}
+    {form && <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div role="dialog" aria-modal="true" aria-labelledby="event-title" className="bg-white text-gray-900 border border-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <h2 id="event-title" className="text-xl font-bold mb-4">{form._id ? "Edit event" : "Add event"}</h2>
+      <form onSubmit={save} className="space-y-3">{Object.keys(emptyEvent).map(key => <label key={key} className="block text-sm">{({ eventName: "Event name", clientName: "Client name", contactNumber: "Contact number", startDate: "Start date", endDate: "End date" })[key] || key}<input required name={key} type={key.includes("Date") ? "date" : key === "email" ? "email" : key === "contactNumber" ? "tel" : "text"} pattern={key === "contactNumber" ? "[0-9]{10}" : undefined} min={key === "endDate" ? form.startDate : undefined} value={form[key] || ""} onChange={e => setForm({ ...form, [key]: e.target.value })} className="block w-full border border-white rounded p-2" /></label>)}
+        {error && <p role="alert" className="text-red-700">{error}</p>}
+        <div className="flex gap-4"><button disabled={saving} className="bg-purple-700 text-white rounded px-4 py-2">{saving ? "Saving…" : "Save event"}</button><button type="button" disabled={saving} onClick={() => setForm(null)}>Cancel</button></div>
+      </form>
+    </div></div>}
+  </section>;
+}

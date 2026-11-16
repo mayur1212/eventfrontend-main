@@ -1,5 +1,5 @@
+import API_BASE_URL from "../../api";
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 
 const DEFAULT_AVATAR = "https://i.pravatar.cc/300";
@@ -12,7 +12,6 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const navigate = useNavigate();
 
   // Fetch profile on mount (only if no user present) - the UserProvider already fetches, so this is defensive
   useEffect(() => {
@@ -43,7 +42,7 @@ const Profile = () => {
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/remove-profile-image`,
+        `${API_BASE_URL}/remove-profile-image`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -84,7 +83,7 @@ const Profile = () => {
       setUploadProgress(10);
 
       const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/update-profile`,
+        `${API_BASE_URL}/update-profile`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -110,7 +109,7 @@ const Profile = () => {
         serverImg && serverImg.startsWith("http")
           ? serverImg
           : serverImg
-          ? `${process.env.REACT_APP_API_BASE_URL}${serverImg}`
+          ? `${API_BASE_URL.replace(/\/api$/, "")}${serverImg}`
           : DEFAULT_AVATAR;
 
       const updatedProfile = {
@@ -170,7 +169,7 @@ const Profile = () => {
               </label>
               <button
                 onClick={handleDeleteImage}
-                className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                className="dashboard-action delete"
               >
                 Delete
               </button>
@@ -221,7 +220,7 @@ const Profile = () => {
           <div className="flex gap-4 mt-4">
             {editMode ? (
               <>
-                <button onClick={handleUpdate} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                <button onClick={handleUpdate} className="dashboard-button primary">
                   Save
                 </button>
                 <button
@@ -238,7 +237,7 @@ const Profile = () => {
                 </button>
               </>
             ) : (
-              <button onClick={() => setEditMode(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+              <button onClick={() => setEditMode(true)} className="dashboard-action edit">
                 Edit Profile
               </button>
             )}

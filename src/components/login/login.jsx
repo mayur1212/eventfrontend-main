@@ -1,33 +1,30 @@
+import { api, apiError, authLog } from "../../api";
 // src/components/login/Login.jsx
 import React, { useState, useContext } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { UserContext } from "../../context/UserContext";
 
 const Login = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const location = useLocation();
+  const [form, setForm] = useState({ email: location.state?.email || "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
   const { setUser } = useContext(UserContext);
 
-  const adminEmails = [
-    "takkemayur456@gmail.com",
-    "digambarmarathe.9@gmail.com",
-    "digambarmarathe.380@gmail.com",
-  ].map((e) => e.toLowerCase());
-
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value.trim() });
+    setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({});
   };
 
   const validateForm = () => {
     const e = {};
-    if (!form.email) e.email = "Email required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = "Enter a valid email";
     if (!form.password) e.password = "Password required";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -35,34 +32,34 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (submitting) return;
+    setMessage("");
+    if (!validateForm()) {
+      setMessage("Please correct the highlighted fields.");
+      authLog("login", "validation failed");
+      return;
+    }
+    authLog("login", "request started");
 
+    setSubmitting(true);
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/login`,
-        form,
-        { withCredentials: true }
+      const res = await api.post(
+        "/login",
+        { ...form, email: form.email.trim().toLowerCase() }
       );
 
       const { token, user: userData, message } = res.data;
-      if (!token) return toast.error(message || "Login failed");
+      if (res.data.success === false) throw new Error(message || "Login failed.");
+      if (typeof token !== "string" || !token) throw new Error("Backend response is missing a valid login token.");
 
-      const emailNormalized = (userData?.email || form.email).trim().toLowerCase();
-      const isAdmin = adminEmails.includes(emailNormalized);
-
-      const safeUser = {
-        id: userData?.id || "",
-        name: userData?.name || "User",
-        email: emailNormalized,
-        role: isAdmin ? "admin" : "user",
-        profileImg: userData?.profileImg || "https://i.pravatar.cc/300",
-        token,
-      };
+      if (!userData || !["admin", "user"].includes(userData.role)) throw new Error("Backend must return user with role admin or user.");
+      const safeUser = { ...userData, name: userData.name || userData.clientName || "User" };
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(safeUser));
       setUser(safeUser);
 
+      authLog("login", "success", { role: safeUser.role });
       toast.success(
         `Welcome ${safeUser.name}! You are logged in as ${safeUser.role.toUpperCase()} ✅`
       );
@@ -70,8 +67,12 @@ const Login = () => {
       if (safeUser.role === "admin") navigate("/dashboard", { replace: true });
       else navigate("/", { replace: true });
     } catch (err) {
-      console.error("Login error →", err);
-      toast.error(err?.response?.data?.message || "Login failed");
+      const text = err.isAxiosError ? apiError(err) : err.message || "Login could not be completed.";
+      setMessage(text);
+      toast.error(text);
+      authLog("login", "failed", { status: err.response?.status || null });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,7 +95,9 @@ const Login = () => {
 
           <h2 className="text-xl font-semibold text-center mb-2">Login</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {location.state?.registrationMessage && !message && <p role="status" className="text-green-700 bg-green-50 p-3 rounded mb-4">{location.state.registrationMessage}</p>}
+          {message && <p role="alert" className="text-red-700 bg-red-50 p-3 rounded mb-4">{message}</p>}
+          <form noValidate onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center border rounded-md px-3 py-2 bg-white shadow-sm">
               <FaEnvelope className="text-gray-400 mr-2" />
               <input
@@ -129,9 +132,10 @@ const Login = () => {
 
             <button
               type="submit"
+              disabled={submitting}
               className="w-full py-2 rounded-md bg-black text-white font-semibold hover:opacity-90 transition"
             >
-              Login
+              {submitting ? "Signing in…" : "Login"}
             </button>
           </form>
 

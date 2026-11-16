@@ -1,7 +1,8 @@
+import { api, apiError, authLog } from "../../api";
+import { toast } from "react-toastify";
 import React, { useState } from "react";
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaMapMarkerAlt, FaCity } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -26,6 +27,7 @@ const RegisterForm = () => {
     endDate: "",
   });
 
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [formErrors, setFormErrors] = useState({});
@@ -52,27 +54,27 @@ const RegisterForm = () => {
     errors.eventName = "Select an event";
     valid = false;
   }
-  if (!form.clientName) {
+  if (!form.clientName.trim()) {
     errors.clientName = "Client Name required";
     valid = false;
   }
-  if (!phonePattern.test(form.contactNumber)) {
+  if (!phonePattern.test(form.contactNumber.trim())) {
     errors.contactNumber = "Valid 10-digit number required";
     valid = false;
   }
-  if (!emailPattern.test(form.email)) {
+  if (!emailPattern.test(form.email.trim())) {
     errors.email = "Invalid email";
     valid = false;
   }
-  if (!form.password || form.password.length < 6) {
-    errors.password = "Min 6 characters";
+  if (!form.password || form.password.length < 8) {
+    errors.password = "Min 8 characters";
     valid = false;
   }
-  if (!form.venue) {
+  if (!form.venue.trim()) {
     errors.venue = "Venue required";
     valid = false;
   }
-  if (!form.city) {
+  if (!form.city.trim()) {
     errors.city = "City required";
     valid = false;
   }
@@ -81,6 +83,10 @@ const RegisterForm = () => {
     valid = false;
   }
 
+  if (form.startDate && form.endDate && form.endDate < form.startDate) {
+    errors.date = "End date must be on or after start date";
+    valid = false;
+  }
   setFormErrors(errors);
   return valid;
 };
@@ -88,21 +94,43 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (submitting) return;
+    setSuccess("");
+    setError("");
+    if (!validateForm()) {
+      setError("Please correct the highlighted fields before registering.");
+      authLog("register", "validation failed");
+      return;
+    }
+    authLog("register", "request started");
 
+    setSubmitting(true);
+    setError("");
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/register`, form);
+      const { eventImage, ...fields } = form;
+      const payload = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, key === "password" ? value : value.trim()]));
+      payload.email = payload.email.toLowerCase();
+      const { data } = await api.post("/register", payload);
+      if (!data || typeof data !== "object" || data.success === false) {
+        throw new Error(data?.message || "Backend did not confirm registration. Check its response.");
+      }
 
       setError("");
-      setSuccess("🎉 Registration successful! Check your email.");
+      setSuccess("🎉 Registration successful! Please log in.");
 
-      setTimeout(() => {
-        navigate("/payment", { state: form });
-      }, 2000);
+      const registrationMessage = "Registration successful! Please log in with your email and password.";
+      toast.success(registrationMessage);
+      authLog("register", "success");
+      navigate("/login", { replace: true, state: { registrationMessage, email: payload.email } });
 
     } catch (err) {
       setSuccess("");
-      setError(err.response?.data?.message || "Registration failed.");
+      const text = err.isAxiosError ? apiError(err) : err.message || "Registration could not be completed.";
+      setError(text);
+      toast.error(text);
+      authLog("register", "failed", { status: err.response?.status || null });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -117,10 +145,10 @@ const RegisterForm = () => {
 
           <h2 className="text-xl font-semibold text-center mb-2">Register for an Event</h2>
 
-          {error && <p className="text-red-500 text-sm mb-2 text-center">{error}</p>}
+          {error && <p role="alert" className="text-red-700 bg-red-50 p-3 rounded text-sm mb-2 text-center">{error}</p>}
           {success && <p className="text-green-600 text-sm mb-2 text-center font-semibold">{success}</p>}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form noValidate onSubmit={handleSubmit} className="space-y-3">
 
             <div onClick={() => setEventPopup(true)}>
               <Input
@@ -154,14 +182,14 @@ const RegisterForm = () => {
             <div className="flex gap-2">
               <input type="date" name="startDate" value={form.startDate} onChange={handleChange}
                 className="w-full border rounded-md p-2 text-sm" />
-              <input type="date" name="endDate" value={form.endDate} onChange={handleChange}
+              <input type="date" min={form.startDate || undefined} name="endDate" value={form.endDate} onChange={handleChange}
                 className="w-full border rounded-md p-2 text-sm" />
             </div>
             {formErrors.date && <p className="text-red-500 text-xs">{formErrors.date}</p>}
 
-            <button type="submit"
+            <button type="submit" disabled={submitting}
               className="w-full py-2 mt-3 rounded-md bg-black text-white font-semibold hover:opacity-90 transition">
-              Register
+              {submitting ? "Registering…" : "Register"}
             </button>
 
           </form>
