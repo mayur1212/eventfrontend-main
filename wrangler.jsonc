@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "eventfrontend-main",
   "compatibility_date": "2026-11-16",
+  "build": {
+    "command": "npm run build"
+  },
   "assets": {
     "directory": "./build",
     "not_found_handling": "single-page-application"
