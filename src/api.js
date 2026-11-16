@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api").replace(/\/$/, "");
+const productionApi = "https://eventbackend.takkemayur456.workers.dev/api";
+const configuredApi = process.env.REACT_APP_API_BASE_URL?.trim();
+const isProduction = process.env.NODE_ENV === "production";
+const isLocalApi = configuredApi && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?=[:/]|$)/i.test(configuredApi);
+const API_BASE_URL = ((isProduction && isLocalApi ? productionApi : configuredApi) ||
+  (isProduction ? productionApi : "http://localhost:5000/api")).replace(/\/$/, "");
 export const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
