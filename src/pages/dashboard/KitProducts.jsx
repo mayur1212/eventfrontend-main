@@ -47,11 +47,39 @@ export default function KitProducts() {
     setSaving(true); setError('');
     try { await api.delete(`/admin/products/${row.id || row._id}`); await load(); } catch (err) { setError(apiError(err)); } finally { setSaving(false); }
   };
+  const republish = async row => {
+    const payload = {};
+    if (row.pricePaise == null) {
+      const price = window.prompt(`Enter the price in INR to republish ${row.name}.`);
+      if (price === null) return;
+      payload.pricePaise = Math.round(Number(price) * 100);
+      if (!Number.isSafeInteger(payload.pricePaise) || payload.pricePaise <= 0) {
+        setError('Enter a valid price to republish this product.');
+        return;
+      }
+    } else if (!window.confirm(`Republish ${row.name} in the public catalogue?`)) {
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+    try {
+      await api.put(`/admin/products/${row.id || row._id}/republish`, payload);
+      await load();
+    } catch (err) {
+      setError(apiError(err));
+    } finally {
+      setSaving(false);
+    }
+  };
   return <section className="space-y-5"><div className="flex flex-wrap justify-between gap-4"><div><h1 className="text-3xl font-bold">Kit Products</h1><p className="mt-2">Manage products, pricing and stock for Kits Buy.</p></div><button disabled={saving || !!form} className="dashboard-button primary" onClick={() => { setError(''); setForm({ ...blank }); }}>+ Add product</button></div>
     
     {error && !form && <p role="alert" className="p-3 border border-red-400 rounded">{error}</p>}
-    <div className="flex gap-3"><input aria-label="Search kit products" placeholder="Search products" value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent border rounded p-2 flex-1 min-w-0" /><button onClick={load} disabled={loading}>Refresh</button></div>
-    {loading ? <p role="status">Loading products…</p> : <div className="overflow-auto"><table className="w-full text-left"><thead><tr>{['Product', 'Category', 'Price', 'Stock', 'Visibility', 'Actions'].map(text => <th className="p-3" key={text}>{text}</th>)}</tr></thead><tbody>{rows.filter(row => row.name.toLowerCase().includes(query.toLowerCase())).map(row => <tr className="border-t border-white/20" key={row.id || row._id}><td className="p-3">{row.name}</td><td className="p-3">{row.category}</td><td className="p-3">{money(row.pricePaise)}</td><td className="p-3">{row.stock}</td><td className="p-3">{row.active ? 'Published' : 'Hidden'}</td><td className="p-3"><button disabled={saving} className="mr-4 underline" onClick={() => { setError(''); setForm({ ...blank, ...row, id: row.id || row._id, price: (row.pricePaise / 100).toFixed(2), features: (row.features || []).join('\n') }); }}>Edit</button><button disabled={saving} className="underline" onClick={() => remove(row)}>Archive</button></td></tr>)}</tbody></table>{!error && !rows.length && <p className="p-4">No products yet. Add your first kit product.</p>}</div>}
+    <div className="flex gap-3"><input aria-label="Search kit products" placeholder="Search products" value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent border rounded p-2 flex-1 min-w-0" /><button onClick={load} disabled={loading || saving}>Refresh</button></div>
+    {loading ? <p role="status">Loading products…</p> : <div className="overflow-auto"><table className="w-full text-left"><thead><tr>{['Product', 'Category', 'Price', 'Stock', 'Visibility', 'Actions'].map(text => <th className="p-3" key={text}>{text}</th>)}</tr></thead><tbody>{rows.filter(row => row.name.toLowerCase().includes(query.toLowerCase())).map(row => <tr className="border-t border-white/20" key={row.id || row._id}><td className="p-3">{row.name}</td><td className="p-3">{row.category}</td><td className="p-3">{money(row.pricePaise)}</td><td className="p-3">{row.stock}</td><td className="p-3">{row.archivedAt ? 'Archived' : row.active ? 'Published' : 'Hidden'}</td><td className="p-3">
+      {row.archivedAt ? (
+        <button disabled={saving} className="underline" onClick={() => republish(row)}>Republish</button>
+      ) : <><button disabled={saving} className="mr-4 underline" onClick={() => { setError(''); setForm({ ...blank, ...row, id: row.id || row._id, price: (row.pricePaise / 100).toFixed(2), features: (row.features || []).join('\n') }); }}>Edit</button><button disabled={saving} className="underline" onClick={() => remove(row)}>Archive</button></>}</td></tr>)}</tbody></table>{!error && !rows.length && <p className="p-4">No products yet. Add your first kit product.</p>}</div>}
     {form && <ProductDialog saving={saving} close={() => setForm(null)}><form onSubmit={save} className="product-modal-form">
       <header className="product-modal-header"><div className="product-modal-symbol"><PackagePlus size={24} aria-hidden="true" /></div><div><span className="product-modal-eyebrow">KITS BUY / CATALOGUE</span><h2 id="product-modal-title">{form.id ? 'Edit product' : 'Add product'}</h2><p id="product-modal-description">Bring your next robotics essential to the store.</p></div><button type="button" className="product-modal-close" aria-label="Close product form" disabled={saving} onClick={() => setForm(null)}><X size={20} /></button></header>
       <div className="product-modal-body">
