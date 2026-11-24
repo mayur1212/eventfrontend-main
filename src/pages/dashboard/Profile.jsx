@@ -2,13 +2,11 @@ import API_BASE_URL from "../../api";
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 
-const DEFAULT_AVATAR = "https://i.pravatar.cc/300";
-
 const Profile = () => {
   const { user, setUser } = useContext(UserContext); // setUser is updateUser from provider
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
-  const [previewImg, setPreviewImg] = useState(DEFAULT_AVATAR);
+  const [previewImg, setPreviewImg] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -17,7 +15,7 @@ const Profile = () => {
   useEffect(() => {
     if (!user) return;
     setFormData(user);
-    setPreviewImg(user.profileImg || DEFAULT_AVATAR);
+    setPreviewImg(user.profileImg || "");
   }, [user]);
 
   // Handle form changes
@@ -51,8 +49,8 @@ const Profile = () => {
 
       if (!res.ok) throw new Error("Could not remove image.");
 
-      const updatedUser = { ...user, profileImg: DEFAULT_AVATAR };
-      setPreviewImg(DEFAULT_AVATAR);
+      const updatedUser = { ...user, profileImg: "" };
+      setPreviewImg("");
       setFormData((prev) => ({ ...prev, profileImg: "" }));
       // use context setter (which writes localStorage and normalizes image)
       setUser(updatedUser);
@@ -103,29 +101,7 @@ const Profile = () => {
         throw new Error(data.message || "Failed to update profile.");
       }
 
-      // Normalize image returned by server
-      const serverImg = data.user.profileImg || "";
-      const normalizedImg =
-        serverImg && serverImg.startsWith("http")
-          ? serverImg
-          : serverImg
-          ? `${API_BASE_URL.replace(/\/api$/, "")}${serverImg}`
-          : DEFAULT_AVATAR;
-
-      const updatedProfile = {
-        ...user,
-        clientName: data.user.clientName,
-        email: data.user.email,
-        contactNumber: data.user.contactNumber,
-        profileImg: normalizedImg,
-      };
-
-      // update form & preview
-      setFormData(updatedProfile);
-      setPreviewImg(updatedProfile.profileImg);
-
-      // update context (this also persists to localStorage and triggers other tabs)
-      setUser(updatedProfile);
+      setUser(data.user);
 
       setEditMode(false);
       setUploadProgress(100);
@@ -150,15 +126,18 @@ const Profile = () => {
       <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row">
         {/* Left: Profile Image */}
         <div className="md:w-1/3 bg-gray-100 relative flex items-center justify-center p-4">
-          <img
-            src={previewImg}
-            alt="Profile"
-            className="rounded-full w-40 h-40 object-cover border-4 border-white shadow-md"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = DEFAULT_AVATAR;
-            }}
-          />
+          {previewImg ? (
+            <img
+              src={previewImg}
+              alt="Profile"
+              className="rounded-full w-40 h-40 object-cover border-4 border-white shadow-md"
+              onError={() => setPreviewImg("")}
+            />
+          ) : (
+            <span aria-label="Profile initials" className="flex w-40 h-40 items-center justify-center rounded-full bg-indigo-100 text-4xl font-semibold text-indigo-700">
+              {user.clientName?.trim().charAt(0).toUpperCase() || "U"}
+            </span>
+          )}
           {editMode && (
             <div className="absolute bottom-4 flex gap-2">
               <label
@@ -176,7 +155,7 @@ const Profile = () => {
               <input
                 id="img-upload"
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleImageUpload}
                 className="hidden"
               />

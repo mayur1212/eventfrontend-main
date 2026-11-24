@@ -2,10 +2,9 @@ import React, { createContext, useState, useEffect, useCallback } from "react";
 import API_BASE_URL, { api, apiError } from "../api";
 
 export const UserContext = createContext();
-const DEFAULT_AVATAR = "https://i.pravatar.cc/300";
 const normalizeUser = (user) => ({
   ...user,
-  profileImg: !user.profileImg ? DEFAULT_AVATAR : new URL(user.profileImg, `${API_BASE_URL.replace(/\/api$/, "")}/`).href,
+  profileImg: !user.profileImg ? "" : new URL(user.profileImg, `${API_BASE_URL.replace(/\/api$/, "")}/`).href,
 });
 
 export const UserProvider = ({ children }) => {
