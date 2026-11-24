@@ -45,10 +45,10 @@ export default function Events() {
     catch (err) { setError(apiError(err)); }
     finally { setDeleting(null); }
   };
-  return <section className="space-y-5">
-    <h1 className="text-3xl font-bold text-pink-400">Events</h1>
-    <div className="flex flex-wrap gap-3">
-      <input aria-label="Search events" placeholder="Search name, client, city or email" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} className="bg-purple-950 border border-purple-600 rounded p-2 flex-1 min-w-0" />
+  return <section className="events-page space-y-5">
+    <div className="events-page-heading"><h1 className="text-3xl font-bold text-pink-400">Event Requests</h1><p>Manage and review all current event requests</p></div>
+    <div className="events-toolbar flex flex-wrap gap-3">
+      <input aria-label="Search events" placeholder="Search events..." value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} className="bg-purple-950 border border-purple-600 rounded p-2 flex-1 min-w-0" />
       <button onClick={load} disabled={loading} className="border border-purple-600 rounded px-4">Refresh</button>
       <button onClick={() => { setError(""); setForm({ ...emptyEvent }); }} className="bg-pink-700 rounded px-4 py-2">+ Add event</button>
     </div>
@@ -65,7 +65,7 @@ export default function Events() {
         </tr>)}</tbody>
       </table></div>
       {!filtered.length && <p className="text-gray-400">{rows.length ? "No matching events." : "No events yet. Create your first event."}</p>}
-      <div className="flex gap-4 items-center"><button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span>Page {currentPage} of {pages} · {filtered.length} events</span><button disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Next</button></div>
+      <div className="events-pagination flex gap-4 items-center"><button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span>Page {currentPage} of {pages} · {filtered.length} events</span><button disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Next</button></div>
     </>}
     {form && <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div role="dialog" aria-modal="true" aria-labelledby="event-title" className="bg-white text-gray-900 border border-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
       <h2 id="event-title" className="text-xl font-bold mb-4">{form._id ? "Edit event" : "Add event"}</h2>

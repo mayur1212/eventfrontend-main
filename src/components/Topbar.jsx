@@ -22,7 +22,9 @@ export default function Topbar() {
     document.addEventListener("keydown", escape);
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
   }, [open]);
+  const title = pathname.includes('/events') ? 'Event Requests' : pathname.includes('/products') ? 'Kit Products' : pathname.includes('/kit-orders') ? 'Kit Orders' : pathname.includes('/profile') ? 'My Profile' : 'Dashboard';
   return <header className="dashboard-topbar">
+    <div className="dashboard-topbar-title">{title}</div>
     <div className="profile-dropdown" ref={dropdownRef} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
       <button ref={triggerRef} type="button" className="profile-trigger" aria-label="Open profile options" aria-expanded={open} aria-controls="profile-options" onClick={() => setOpen(!open)}>
         {user?.profileImg && !imageFailed ? <img src={user.profileImg} alt={`${name} profile`} onError={() => setImageFailed(true)} /> : <span className="account-avatar">{name.charAt(0).toUpperCase()}</span>}
