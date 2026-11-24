@@ -1,2 +1,4 @@
 /dashboard /index.html 200
 /dashboard/* /index.html 200
+/kits-buy /index.html 200
+/kits-buy/* /index.html 200
